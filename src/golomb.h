@@ -36,8 +36,13 @@ namespace pg::golomb
 namespace detail
 {
 
-template< typename SignedT >
-requires std::signed_integral< SignedT >
+template<typename InputIt>
+concept integral_iterator = std::integral< typename std::iterator_traits< InputIt >::value_type >
+    
+template<typename InputIt>
+concept unsigned_integral_iterator = std::unsigned_integral< typename std::iterator_traits< InputIt >::value_type >
+    
+template< signed_integral SignedT >
 auto to_unsigned( SignedT s )
 {
     using UnsignedT = typename std::make_unsigned< SignedT >::type;
@@ -50,15 +55,13 @@ auto to_unsigned( SignedT s )
     return static_cast< UnsignedT >( s << 1 );
 }
 
-template< typename UnsignedT >
-requires std::unsigned_integral< UnsignedT >
+template< unsigned_integral UnsignedT >
 auto to_unsigned( UnsignedT u )
 {
     return u;
 }
 
-template< typename SignedT >
-requires std::signed_integral< SignedT >
+template< signed_integral SignedT >
 auto to_integral( std::unsigned_integral auto u )
 {
     using UnsignedT = typename std::make_unsigned< SignedT >::type;
@@ -72,8 +75,7 @@ auto to_integral( std::unsigned_integral auto u )
     return static_cast< SignedT >( U >> 1 );
 }
 
-template< typename UnsignedT >
-requires std::unsigned_integral< UnsignedT >
+template< unsigned_integral UnsignedT >
 auto to_integral( std::unsigned_integral auto u )
 {
     return static_cast< UnsignedT >( u );
@@ -81,8 +83,7 @@ auto to_integral( std::unsigned_integral auto u )
 
 }
 
-template< typename OutputIt, typename OutputDataT = uint8_t >
-requires std::unsigned_integral< OutputDataT >
+template< typename OutputIt, unsigned_integral OutputDataT = uint8_t >
 class encoder
 {
     static constexpr auto output_digits = std::numeric_limits< OutputDataT >::digits;
@@ -105,8 +106,7 @@ public:
         , encoded_count( 0 )
     {}
 
-    template< typename InputValueT >
-    requires std::integral< InputValueT >
+    template< integral InputValueT >
     OutputIt push( InputValueT x )
     {
         using UnsignedInputValueT = typename std::make_unsigned< InputValueT >::type;
@@ -189,11 +189,9 @@ public:
     }
 };
 
-template< typename OutputDataT = uint8_t,
-          typename InputIt,
+template< unsigned_integral OutputDataT = uint8_t,
+          integral_iterator InputIt,
           typename OutputIt >
-requires std::integral< typename std::iterator_traits< InputIt >::value_type > &&
-         std::unsigned_integral< OutputDataT >
 constexpr auto encode( InputIt input, InputIt last, OutputIt output, size_t k = 0u )
 {
     using ValueT = typename std::iterator_traits< InputIt >::value_type;
@@ -208,8 +206,7 @@ constexpr auto encode( InputIt input, InputIt last, OutputIt output, size_t k = 
     return e.flush();
 }
 
-template< typename OutputIt, typename OutputValueT >
-requires std::integral< OutputValueT >
+template< typename OutputIt, integral OutputValueT >
 class decoder
 {
     using UnsignedOutputValueT = typename std::make_unsigned< OutputValueT >::type;
@@ -237,8 +234,8 @@ public:
         , state( scan_zeros )
     {}
 
-    template< typename InputDataT >
-    requires std::unsigned_integral< InputDataT >
+    template< unsigned_integral InputDataT >
+
     OutputIt push( InputDataT input )
     {
         using CommonT = typename std::common_type< InputDataT, UnsignedOutputValueT >::type;
@@ -310,11 +307,9 @@ public:
     }
 };
 
-template< typename OutputValueT,
-          typename InputIt,
+template< integral OutputValueT,
+          unsigned_integral_iterator InputIt,
           typename OutputIt >
-requires std::unsigned_integral< typename std::iterator_traits< InputIt >::value_type > &&
-         std::integral< OutputValueT >
 constexpr auto decode( InputIt input, InputIt last, OutputIt output, size_t k = 0u )
 {
     decoder< OutputIt, OutputValueT > d( output, k );

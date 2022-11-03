@@ -55,7 +55,7 @@ auto to_unsigned( SignedT s )
     return static_cast< UnsignedT >( s << 1 );
 }
 
-template< unsigned_integral UnsignedT >
+template< std::unsigned_integral UnsignedT >
 auto to_unsigned( UnsignedT u )
 {
     return u;
@@ -75,7 +75,7 @@ auto to_integral( std::unsigned_integral auto u )
     return static_cast< SignedT >( U >> 1 );
 }
 
-template< unsigned_integral UnsignedT >
+template< std::unsigned_integral UnsignedT >
 auto to_integral( std::unsigned_integral auto u )
 {
     return static_cast< UnsignedT >( u );
@@ -106,7 +106,7 @@ public:
         , encoded_count( 0 )
     {}
 
-    template< integral InputValueT >
+    template< std::integral InputValueT >
     OutputIt push( InputValueT x )
     {
         using UnsignedInputValueT = typename std::make_unsigned< InputValueT >::type;
@@ -189,7 +189,7 @@ public:
     }
 };
 
-template< unsigned_integral OutputDataT = uint8_t,
+template< std::unsigned_integral OutputDataT = uint8_t,
           integral_iterator InputIt,
           typename OutputIt >
 constexpr auto encode( InputIt input, InputIt last, OutputIt output, size_t k = 0u )
@@ -234,7 +234,7 @@ public:
         , state( scan_zeros )
     {}
 
-    template< unsigned_integral InputDataT >
+    template< std::unsigned_integral InputDataT >
 
     OutputIt push( InputDataT input )
     {
@@ -307,7 +307,7 @@ public:
     }
 };
 
-template< integral OutputValueT,
+template< std::integral OutputValueT,
           unsigned_integral_iterator InputIt,
           typename OutputIt >
 constexpr auto decode( InputIt input, InputIt last, OutputIt output, size_t k = 0u )

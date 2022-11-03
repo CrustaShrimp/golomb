@@ -42,7 +42,7 @@ concept integral_iterator = std::integral< typename std::iterator_traits< InputI
 template<typename InputIt>
 concept unsigned_integral_iterator = std::unsigned_integral< typename std::iterator_traits< InputIt >::value_type >
     
-template< signed_integral SignedT >
+template< std::signed_integral SignedT >
 auto to_unsigned( SignedT s )
 {
     using UnsignedT = typename std::make_unsigned< SignedT >::type;
@@ -61,7 +61,7 @@ auto to_unsigned( UnsignedT u )
     return u;
 }
 
-template< signed_integral SignedT >
+template< std::signed_integral SignedT >
 auto to_integral( std::unsigned_integral auto u )
 {
     using UnsignedT = typename std::make_unsigned< SignedT >::type;
